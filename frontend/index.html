@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriSmart AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --sidebar:#1b3a2d;
+  --sidebar-active:#2d6a4f;
+  --green:#2d6a4f;
+  --green-main:#40916c;
+  --green-light:#52b788;
+  --green-pale:#d8f3dc;
+  --green-soft:#b7e4c7;
+  --amber:#f4a261;
+  --amber-bg:#fff8ee;
+  --amber-badge:#fdf0e0;
+  --amber-text:#c47b1a;
+  --bg:#f2f4f2;
+  --white:#fff;
+  --border:#e4ebe4;
+  --text:#1c2b1c;
+  --muted:#6b7d6b;
+  --light:#9aab9a;
+  --sw:208px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:13.5px;line-height:1.5;}
+.sb{width:var(--sw);background:var(--sidebar);display:flex;flex-direction:column;min-height:100vh;position:fixed;left:0;top:0;z-index:200;}
+.sb-brand{padding:16px 14px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.sb-logo-row{display:flex;align-items:center;gap:9px;}
+.sb-icon{width:32px;height:32px;background:var(--green-main);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.sb-icon svg{width:18px;height:18px;fill:white;}
+.sb-title{font-size:14px;font-weight:700;color:white;line-height:1.1;}
+.sb-sub{font-size:10px;color:rgba(255,255,255,0.38);margin-top:1px;}
+.sb-nav{flex:1;padding:10px 8px;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:7px;color:rgba(255,255,255,0.48);font-size:12.5px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit;transition:all .15s;margin-bottom:2px;}
+.ni:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.82);}
+.ni.on{background:var(--sidebar-active);color:white;}
+.ni svg{width:14px;height:14px;flex-shrink:0;}
+.sb-div{height:1px;background:rgba(255,255,255,0.07);margin:8px 2px;}
+.sb-foot{padding:12px 8px;border-top:1px solid rgba(255,255,255,0.07);}
+.new-btn{display:flex;align-items:center;gap:7px;width:100%;padding:9px 12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:rgba(255,255,255,0.72);font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:10px;}
+.new-btn:hover{background:rgba(255,255,255,0.12);}
+.new-btn svg{width:12px;height:12px;}
+.sb-tag{font-size:10px;color:rgba(255,255,255,0.26);text-align:center;line-height:1.5;}
+.sb-tag span{display:block;color:rgba(255,255,255,0.44);font-size:10.5px;font-weight:500;}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;}
+.topbar{background:white;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.tb-left{display:flex;align-items:center;gap:12px;}
+.tb-check{width:38px;height:38px;background:var(--green-main);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;display:none;}
+.tb-check svg{width:18px;height:18px;stroke:white;fill:none;}
+.tb-left h1{font-size:20px;font-weight:700;line-height:1;}
+.tb-left p{font-size:11.5px;color:var(--muted);margin-top:1px;}
+.dl-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:white;border:1.5px solid var(--border);border-radius:7px;font-size:12.5px;font-weight:500;color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s;}
+.dl-btn:hover{border-color:var(--green-main);color:var(--green-main);}
+.dl-btn svg{width:13px;height:13px;}
+.cw{display:flex;gap:18px;padding:20px 24px;align-items:flex-start;flex:1;}
+.cl{flex:1;min-width:0;}
+.cr{width:236px;flex-shrink:0;}
+.view{display:none;}
+.view.on{display:block;}
+.isec{background:white;border-radius:12px;border:1px solid var(--border);padding:20px;margin-bottom:14px;}
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green-main);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.slbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.upzone{border:2px dashed var(--border);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:.2s;position:relative;background:#fafcfa;}
+.upzone:hover,.upzone.drag{border-color:var(--green-main);background:var(--green-pale);}
+.upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.up-ico{width:44px;height:44px;background:var(--green-pale);border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;border:1px solid var(--green-soft);}
+.up-ico svg{width:21px;height:21px;stroke:var(--green-main);fill:none;}
+.upzone h3{font-size:13px;font-weight:600;margin-bottom:3px;}
+.upzone p{font-size:11.5px;color:var(--light);}
+.prev{width:100%;max-height:180px;object-fit:cover;border-radius:8px;display:none;}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fld label{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px;}
+.fld input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13.5px;color:var(--text);outline:none;transition:.15s;background:white;}
+.fld input:focus{border-color:var(--green-main);}
+.fld input::placeholder{color:#c5d5c5;}
+.abtn{width:100%;padding:12px;background:var(--green);color:white;border:none;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;transition:.2s;}
+.abtn:hover{background:#1f4d38;transform:translateY(-1px);}
+.abtn svg{width:15px;height:15px;stroke:white;fill:none;}
+.ebar{display:none;align-items:center;gap:7px;background:#fff0f0;border:1px solid #ffc9c9;border-radius:7px;padding:9px 12px;color:#c53030;font-size:12px;margin-top:10px;}
+.ebar.on{display:flex;}
+.lwrap{background:white;border-radius:12px;border:1px solid var(--border);padding:48px 24px;text-align:center;}
+.spin{width:40px;height:40px;border:3px solid var(--green-pale);border-top-color:var(--green-main);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.lwrap h2{font-size:17px;font-weight:700;margin-bottom:4px;}
+.lwrap>p{font-size:12.5px;color:var(--muted);}
+.lsteps{margin:20px auto 0;max-width:280px;text-align:left;display:flex;flex-direction:column;gap:9px;}
+.ls{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--light);}
+.ls.on{color:var(--green-main);font-weight:500;}
+.ls.done{color:var(--green-light);}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;}
+.ls.on .ldot{background:var(--green-main);animation:pulse 1s infinite;}
+.ls.done .ldot{background:var(--green-light);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.rcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.rcard{background:white;border:1px solid var(--border);border-radius:12px;padding:20px 20px 18px;display:flex;align-items:center;gap:16px;}
+.rcard-img{width:80px;height:80px;border-radius:50%;background:var(--green-pale);border:3px solid var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.rcard-img.crop-bg{background:#fff8e8;border-color:#fde8a0;}
+.rcard-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;}
+.rcard-name{font-size:26px;font-weight:700;color:var(--text);line-height:1.1;margin-bottom:8px;}
+.rcard-name.green{color:var(--green-main);}
+.conf-badge{display:inline-flex;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.conf-g{background:var(--green-pale);color:var(--green);}
+.conf-a{background:var(--amber-badge);color:var(--amber-text);}
+.analysis-wrap{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.atabs{display:flex;border-bottom:1px solid var(--border);}
+.atab{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px;cursor:pointer;border:none;background:none;font-family:inherit;font-size:12px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;}
+.atab:hover{color:var(--green-main);}
+.atab.on{color:var(--green-main);border-bottom-color:var(--green-main);font-weight:600;}
+.atab-icon{font-size:18px;line-height:1;}
+.acols{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;}
+.acol{padding:20px 18px;border-right:1px solid var(--border);}
+.acol:last-child{border-right:none;}
+.acol h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.acol p{font-size:12.5px;line-height:1.75;color:#3a4a3a;margin-bottom:9px;}
+.alt-li{display:flex;gap:8px;margin-bottom:9px;}
+.alt-li::before{content:'•';color:var(--green-main);font-weight:700;flex-shrink:0;margin-top:1px;}
+.alt-li p{font-size:12.5px;line-height:1.65;color:#3a4a3a;margin:0;}
+.alt-highlight{background:var(--amber-bg);border:1px solid #fde8a0;border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;gap:8px;}
+.alt-highlight svg{width:14px;height:14px;stroke:var(--amber);fill:none;flex-shrink:0;margin-top:2px;}
+.alt-highlight p{font-size:11.5px;line-height:1.6;color:#8a5e1a;margin:0;}
+.adv-li{display:flex;gap:9px;margin-bottom:10px;align-items:flex-start;}
+.adv-num{min-width:20px;height:20px;border-radius:50%;background:var(--green-main);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.adv-li p{font-size:12.5px;line-height:1.65;color:#3a4a3a;margin:0;}
+.rpc{background:white;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;}
+.rpt{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.rpt svg{width:15px;height:15px;stroke:var(--green-main);fill:none;}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
+.prow:last-child{border-bottom:none;}
+.prl{display:flex;align-items:center;gap:8px;}
+.pico{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;font-style:normal;}
+.pi-t{background:#e3f2fd;color:#1565c0;}
+.pi-h{background:#e0f7fa;color:#00838f;}
+.pi-ph{background:#f3e8fd;color:#6a1b9a;}
+.pi-n{background:#e8f5e9;color:#2e7d32;}
+.pi-p{background:#fff3e0;color:#e65100;}
+.pi-k{background:#e8eaf6;color:#283593;}
+.pi-r{background:#e3f2fd;color:#1976d2;}
+.plbl{font-size:12.5px;color:var(--muted);}
+.pval{font-size:12.5px;font-weight:600;color:var(--text);}
+.srow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.srow:last-child{border-bottom:none;}
+.srow span:first-child{color:var(--muted);}
+.srow .acc{color:var(--green-main);font-weight:600;}
+.srow span:last-child{font-weight:600;color:var(--text);}
+.aibox{background:#f0f9f4;border:1px solid var(--green-soft);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start;}
+.ai-ico{font-size:22px;flex-shrink:0;}
+.aibox p{font-size:12px;color:#2d5a3d;line-height:1.6;}
+.info-box{background:white;border:1px solid var(--border);border-radius:12px;padding:16px;}
+.info-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.info-title svg{width:13px;height:13px;stroke:var(--green-main);fill:none;}
+.itip{display:flex;gap:7px;margin-bottom:7px;font-size:12px;color:var(--muted);line-height:1.5;}
+.itip::before{content:'→';color:var(--green-main);font-weight:700;}
+.statusbar{background:var(--sidebar);color:rgba(255,255,255,.55);font-size:11px;padding:9px 24px;display:flex;align-items:center;gap:7px;margin-top:auto;}
+.statusbar svg{width:12px;height:12px;stroke:var(--green-light);fill:none;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="sb-logo-row">
+      <div class="sb-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20c9 0 11-8.67 11-8.67A9 9 0 0 1 17 8z"/></svg>
+      </div>
+      <div><div class="sb-title">AgriSmart AI</div><div class="sb-sub">Smart Farming Assistant</div></div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <button class="ni on" id="nav-dash" onclick="navClick('dash')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+    </button>
+    <button class="ni" id="nav-soil" onclick="navClick('soil')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Soil Analysis
+    </button>
+    <button class="ni" id="nav-crop" onclick="navClick('crop')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12C2 9.24 3.12 6.74 4.93 4.93"/><path d="M12 6v6l4 2"/></svg>Crop Recommendation
+    </button>
+    <button class="ni" id="nav-params" onclick="navClick('params')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Field Parameters
+    </button>
+    <div class="sb-div"></div>
+    <button class="ni" id="nav-ai" onclick="navClick('ai')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M9 9h.01M15 9h.01M9 15s1 1.5 3 1.5 3-1.5 3-1.5"/></svg>AI Advisor
+    </button>
+    <button class="ni" id="nav-hist" onclick="navClick('hist')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History
+    </button>
+    <button class="ni" id="nav-saved" onclick="navClick('saved')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Saved Reports
+    </button>
+    <button class="ni" id="nav-set" onclick="navClick('set')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Settings
+    </button>
+  </nav>
+  <div class="sb-foot">
+    <button class="new-btn" onclick="resetAll()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Analysis
+    </button>
+    <div class="sb-tag"><span>Empowering farmers</span>with AI & Knowledge</div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-check" id="tbCheck"><svg viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div>
+        <h1 id="tbTitle">Dashboard</h1>
+        <p id="tbSub">Upload soil image & enter field parameters</p>
+      </div>
+    </div>
+    <button class="dl-btn" id="dlBtn" style="display:none" onclick="dlReport()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Report
+    </button>
+  </div>
+
+  <div class="cw">
+    <div class="cl">
+
+      <!-- INPUT VIEW -->
+      <div class="view on" id="vInput">
+        <div class="isec">
+          <div class="slbl">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Soil Image
+          </div>
+          <div class="upzone" id="upzone">
+            <input type="file" id="imgI" accept="image/*">
+            <img class="prev" id="prev">
+            <div id="uph">
+              <div class="up-ico"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+              <h3>Drop soil image here</h3>
+              <p>PNG, JPG · Click to browse</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="isec">
+          <div class="slbl">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Field Parameters
+          </div>
+          <!-- ✅ Sirf 7 fields — organic bilkul nahi -->
+          <div class="pgrid">
+            <div class="fld"><label>Nitrogen (N) mg/kg</label><input type="number" id="N" placeholder="e.g. 90" step="0.1"></div>
+            <div class="fld"><label>Phosphorus (P) mg/kg</label><input type="number" id="P" placeholder="e.g. 42" step="0.1"></div>
+            <div class="fld"><label>Potassium (K) mg/kg</label><input type="number" id="K" placeholder="e.g. 43" step="0.1"></div>
+            <div class="fld"><label>Temperature (°C)</label><input type="number" id="temperature" placeholder="e.g. 20.8" step="0.1"></div>
+            <div class="fld"><label>Humidity (%)</label><input type="number" id="humidity" placeholder="e.g. 82" step="0.1"></div>
+            <div class="fld"><label>pH Level</label><input type="number" id="ph" placeholder="e.g. 6.5" step="0.1"></div>
+            <div class="fld"><label>Rainfall (mm)</label><input type="number" id="rainfall" placeholder="e.g. 202" step="0.1"></div>
+          </div>
+          <div class="ebar" id="ebar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="etxt">Please fill all fields and upload an image.</span>
+          </div>
+          <button class="abtn" onclick="analyze()">
+            <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Analyze Soil & Recommend Crop
+          </button>
+        </div>
+      </div>
+
+      <!-- LOADING VIEW -->
+      <div class="view" id="vLoad">
+        <div class="lwrap">
+          <div class="spin"></div>
+          <h2>Analyzing your soil...</h2>
+          <p>AI agent is processing your data</p>
+          <div class="lsteps">
+            <div class="ls" id="ls1"><div class="ldot"></div>Detecting soil type from image</div>
+            <div class="ls" id="ls2"><div class="ldot"></div>Analyzing field parameters</div>
+            <div class="ls" id="ls3"><div class="ldot"></div>Generating crop recommendation</div>
+            <div class="ls" id="ls4"><div class="ldot"></div>Preparing detailed AI analysis</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT VIEW -->
+      <div class="view" id="vResult">
+        <div class="rcards">
+          <div class="rcard">
+            <div class="rcard-img">
+              <svg viewBox="0 0 80 80" width="70" height="70" fill="none">
+                <circle cx="40" cy="40" r="38" fill="#e8f5e9"/>
+                <ellipse cx="40" cy="58" rx="22" ry="6" fill="#795548" opacity=".35"/>
+                <path d="M25 52 Q30 38 40 33 Q50 38 55 52" fill="#6d4c41" opacity=".5"/>
+                <path d="M40 33 Q40 18 31 11" stroke="#2d6a4f" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <path d="M40 26 Q46 17 55 15" stroke="#52b788" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <path d="M40 34 Q34 23 23 21" stroke="#2d6a4f" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <ellipse cx="31" cy="10" rx="5" ry="7" fill="#40916c" opacity=".8"/>
+                <ellipse cx="55" cy="14" rx="4" ry="6" fill="#52b788" opacity=".7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="rcard-lbl">Detected Soil Type</div>
+              <div class="rcard-name" id="soilName">—</div>
+              <span class="conf-badge conf-g" id="soilConf">—</span>
+            </div>
+          </div>
+          <div class="rcard">
+            <div class="rcard-img crop-bg">
+              <svg viewBox="0 0 80 80" width="70" height="70" fill="none">
+                <circle cx="40" cy="40" r="38" fill="#fff8e1"/>
+                <line x1="40" y1="62" x2="40" y2="25" stroke="#f9a825" stroke-width="3" stroke-linecap="round"/>
+                <path d="M40 25 Q48 15 58 13 Q56 24 46 28" fill="#f9a825" opacity=".8"/>
+                <path d="M40 34 Q32 22 22 20 Q24 31 36 35" fill="#fbc02d" opacity=".7"/>
+                <path d="M40 43 Q50 34 60 34 Q57 43 48 46" fill="#f9a825" opacity=".55"/>
+                <ellipse cx="40" cy="63" rx="8" ry="2.5" fill="#c8a000" opacity=".4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="rcard-lbl">Recommended Crop</div>
+              <div class="rcard-name green" id="cropName">—</div>
+              <span class="conf-badge conf-a" id="cropConf">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analysis-wrap">
+          <div class="atabs">
+            <button class="atab on" onclick="atab(0,this)"><div class="atab-icon">🌱</div>Soil Analysis</button>
+            <button class="atab" onclick="atab(1,this)"><div class="atab-icon">🌾</div>Crop Recommendation</button>
+            <button class="atab" onclick="atab(2,this)"><div class="atab-icon">🌿</div>Alternative Crops</button>
+            <button class="atab" onclick="atab(3,this)"><div class="atab-icon">👨‍🌾</div>Farmer Advice</button>
+          </div>
+          <div class="acols">
+            <div class="acol" id="col0"><h3>Soil Analysis</h3><div id="tx-soil"><p>Loading...</p></div></div>
+            <div class="acol" id="col1"><h3>Crop Recommendation</h3><div id="tx-crop"><p>Loading...</p></div></div>
+            <div class="acol" id="col2"><h3>Alternative Crops</h3><div id="tx-alt"><p>Loading...</p></div></div>
+            <div class="acol" id="col3"><h3>Farmer Advice</h3><div id="tx-adv"><p>Loading...</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OTHER VIEWS -->
+      <div class="view" id="vSoil"><div class="isec" style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px;">🌱</div><h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">Soil Analysis</h2><p style="color:var(--muted);font-size:13px;">Run a new analysis from the Dashboard to see soil detection results here.</p><button class="abtn" style="max-width:200px;margin:16px auto 0;" onclick="navClick('dash')">Go to Dashboard</button></div></div>
+      <div class="view" id="vCrop"><div class="isec" style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px;">🌾</div><h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">Crop Recommendation</h2><p style="color:var(--muted);font-size:13px;">Run a new analysis from the Dashboard to see crop recommendations here.</p><button class="abtn" style="max-width:200px;margin:16px auto 0;" onclick="navClick('dash')">Go to Dashboard</button></div></div>
+      <div class="view" id="vParams"><div class="isec"><div class="slbl">Current Field Parameters</div><div id="paramsView" style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center;">No analysis run yet. Go to Dashboard to start.</div></div></div>
+      <div class="view" id="vAI"><div class="isec" style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px;">🤖</div><h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">AI Advisor</h2><p style="color:var(--muted);font-size:13px;">Complete an analysis to get personalized AI agricultural advice.</p><button class="abtn" style="max-width:200px;margin:16px auto 0;" onclick="navClick('dash')">Start Analysis</button></div></div>
+      <div class="view" id="vHist"><div class="isec" style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px;">🕐</div><h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">History</h2><p style="color:var(--muted);font-size:13px;">Your previous analyses will appear here.</p></div></div>
+      <div class="view" id="vSaved"><div class="isec" style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:16px;">📁</div><h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">Saved Reports</h2><p style="color:var(--muted);font-size:13px;">Download and save reports from completed analyses.</p></div></div>
+      <div class="view" id="vSet"><div class="isec"><div class="slbl">Settings</div><div style="padding:20px 0;"><div style="margin-bottom:16px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:block;margin-bottom:6px;">API Endpoint</label><input id="apiEndpoint" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:13.5px;" value="http://127.0.0.1:8000/predict"></div><button class="abtn" style="max-width:160px;" onclick="saveSettings()">Save Settings</button></div></div></div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="cr">
+      <div id="rInput">
+        <div class="info-box">
+          <div class="info-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>How it works</div>
+          <div class="itip">Upload a clear photo of your soil sample</div>
+          <div class="itip">Enter accurate field measurements</div>
+          <div class="itip">AI detects soil type using CNN model</div>
+          <div class="itip">Crop model recommends the best crop</div>
+          <div class="itip">Get a full agricultural analysis report</div>
+        </div>
+      </div>
+      <div id="rResult" style="display:none">
+        <div class="rpc">
+          <div class="rpt"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Field Parameters</div>
+          <div id="prows"></div>
+        </div>
+        <div class="rpc">
+          <div class="rpt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Analysis Summary</div>
+          <div class="srow"><span>Model Accuracy (Soil)</span><span class="acc" id="ss-s">—</span></div>
+          <div class="srow"><span>Model Accuracy (Crop)</span><span class="acc" id="ss-c">—</span></div>
+          <div class="srow"><span>Report ID</span><span id="ss-r" style="font-size:11px;">—</span></div>
+          <div class="srow"><span>Date</span><span id="ss-d" style="font-size:11px;">—</span></div>
+        </div>
+        <div class="rpc">
+          <div class="rpt"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>AI Advisor</div>
+          <div class="aibox"><div class="ai-ico">🤖</div><p>This recommendation is generated using advanced AI models and agricultural knowledge base.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    This report is generated by AI and based on input data. For best results, consult with local agricultural experts.
+  </div>
+</div>
+
+<script>
+let API = 'http://127.0.0.1:8000/predict';
+let savedTxt = '';
+let lastVals = {};
+let hasResult = false;
+
+const navMap = {
+  dash:  {view:'vInput',  title:'Dashboard',           sub:'Upload soil image & enter field parameters'},
+  soil:  {view:'vSoil',   title:'Soil Analysis',        sub:'View soil detection results'},
+  crop:  {view:'vCrop',   title:'Crop Recommendation',  sub:'View crop recommendation results'},
+  params:{view:'vParams', title:'Field Parameters',     sub:'View entered field parameters'},
+  ai:    {view:'vAI',     title:'AI Advisor',           sub:'Get AI-powered agricultural advice'},
+  hist:  {view:'vHist',   title:'History',              sub:'View past analyses'},
+  saved: {view:'vSaved',  title:'Saved Reports',        sub:'Access downloaded reports'},
+  set:   {view:'vSet',    title:'Settings',             sub:'Configure application settings'},
+};
+
+function navClick(key) {
+  if(hasResult && (key==='soil'||key==='crop'||key==='ai')){showResult();setNav(key);return;}
+  const m=navMap[key]; if(!m)return;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById(m.view).classList.add('on');
+  setNav(key);
+  document.getElementById('tbTitle').textContent=m.title;
+  document.getElementById('tbSub').textContent=m.sub;
+  if(key==='params'&&hasResult)renderParamsView();
+}
+
+function setNav(key){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const el=document.getElementById('nav-'+key);
+  if(el)el.classList.add('on');
+}
+
+function atab(idx,btn){
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('col'+idx).scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+document.getElementById('imgI').addEventListener('change',function(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    document.getElementById('prev').src=ev.target.result;
+    document.getElementById('prev').style.display='block';
+    document.getElementById('uph').style.display='none';
+  };
+  r.readAsDataURL(f);
+});
+const uz=document.getElementById('upzone');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag');});
+uz.addEventListener('dragleave',()=>uz.classList.remove('drag'));
+uz.addEventListener('drop',e=>{
+  e.preventDefault();uz.classList.remove('drag');
+  const f=e.dataTransfer.files[0];if(!f)return;
+  document.getElementById('imgI').files=e.dataTransfer.files;
+  const r=new FileReader();
+  r.onload=ev=>{
+    document.getElementById('prev').src=ev.target.result;
+    document.getElementById('prev').style.display='block';
+    document.getElementById('uph').style.display='none';
+  };
+  r.readAsDataURL(f);
+});
+
+function animLS(){
+  const s=['ls1','ls2','ls3','ls4'],d=[0,4000,9000,15000];
+  s.forEach((id,i)=>setTimeout(()=>{
+    if(i>0)document.getElementById(s[i-1]).className='ls done';
+    document.getElementById(id).className='ls on';
+  },d[i]));
+}
+
+function cap(s){
+  return s?s.replace(/_/g,' ').split(' ')
+    .map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '):s;
+}
+
+function parseSec(txt){
+  const g=(re)=>{const m=txt.match(re);return m?m[1].trim():'';};
+  return {
+    soil:g(/\*\*Soil Analysis[:\*]*\*\*([\s\S]*?)(?=\*\*Crop Recommendation|$)/i),
+    crop:g(/\*\*Crop Recommendation[:\*]*\*\*([\s\S]*?)(?=\*\*Alternative|$)/i),
+    alt: g(/\*\*Alternative Crops[:\*]*\*\*([\s\S]*?)(?=\*\*Farmer|$)/i),
+    adv: g(/\*\*Farmer Advice[:\*]*\*\*([\s\S]*?)$/i)
+  };
+}
+
+function toP(txt){
+  if(!txt)return '';
+  return txt.split('\n').filter(l=>l.trim()).map(l=>
+    `<p>${l.replace(/^[-•*]\s*/,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>')}</p>`
+  ).join('');
+}
+function toAlt(txt){
+  if(!txt)return '';
+  const lines=txt.split('\n').filter(l=>l.trim());
+  let out='';
+  lines.forEach((l,i)=>{
+    const clean=l.replace(/^[-•*]\s*/,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    if(i===lines.length-1&&lines.length>3){
+      out+=`<div class="alt-highlight"><svg viewBox="0 0 24 24" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>${clean}</p></div>`;
+    }else{
+      out+=`<div class="alt-li"><p>${clean}</p></div>`;
+    }
+  });
+  return out;
+}
+function toAdv(txt){
+  if(!txt)return '';
+  let n=1;
+  return txt.split('\n').filter(l=>l.trim()).map(l=>`
+    <div class="adv-li"><div class="adv-num">${n++}</div>
+    <p>${l.replace(/^\d+\.\s*/,'').replace(/^[-•]\s*/,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</p></div>`).join('');
+}
+
+// ✅ Organic hata diya
+function buildProws(v){
+  return [
+    {l:'Temperature',   val:v.temperature+'°C', c:'pi-t',  t:'T'},
+    {l:'Humidity',      val:v.humidity+'%',      c:'pi-h',  t:'H'},
+    {l:'pH Level',      val:v.ph,                c:'pi-ph', t:'pH'},
+    {l:'Nitrogen (N)',  val:v.N+' mg/kg',         c:'pi-n',  t:'N'},
+    {l:'Phosphorus (P)',val:v.P+' mg/kg',         c:'pi-p',  t:'P'},
+    {l:'Potassium (K)', val:v.K+' mg/kg',         c:'pi-k',  t:'K'},
+    {l:'Rainfall',      val:v.rainfall+' mm',     c:'pi-r',  t:'R'},
+  ].map(r=>`<div class="prow"><div class="prl"><div class="pico ${r.c}">${r.t}</div><span class="plbl">${r.l}</span></div><span class="pval">${r.val}</span></div>`).join('');
+}
+
+// ✅ Organic hata diya
+function renderParamsView(){
+  if(!hasResult)return;
+  const v=lastVals;
+  document.getElementById('paramsView').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${
+    [['Nitrogen (N)',v.N+' mg/kg'],['Phosphorus (P)',v.P+' mg/kg'],['Potassium (K)',v.K+' mg/kg'],
+     ['Temperature',v.temperature+'°C'],['Humidity',v.humidity+'%'],['pH Level',v.ph],
+     ['Rainfall',v.rainfall+' mm']]
+    .map(([l,val])=>`<div style="background:#fafcfa;border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:3px;">${l}</div>
+      <div style="font-size:15px;font-weight:700;">${val}</div></div>`).join('')
+  }</div>`;
+}
+
+function showResult(){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('vResult').classList.add('on');
+  document.getElementById('tbCheck').style.display='flex';
+  document.getElementById('tbTitle').textContent='Analysis Complete';
+  document.getElementById('tbSub').textContent='AI-powered soil & crop recommendation report';
+  document.getElementById('dlBtn').style.display='flex';
+  document.getElementById('rInput').style.display='none';
+  document.getElementById('rResult').style.display='block';
+}
+
+async function analyze(){
+  const img=document.getElementById('imgI').files[0];
+  // ✅ Sirf 7 fields — organic bilkul nahi
+  const flds=['N','P','K','temperature','humidity','ph','rainfall'];
+  const vals={};
+  let ok=true;
+  flds.forEach(f=>{
+    const v=document.getElementById(f).value;
+    if(!v)ok=false;
+    vals[f]=parseFloat(v);
+  });
+  const eb=document.getElementById('ebar');
+  if(!img||!ok){
+    eb.classList.add('on');
+    document.getElementById('etxt').textContent=!img?'Please upload a soil image.':'Please fill in all field parameters.';
+    return;
+  }
+  eb.classList.remove('on');
+  lastVals=vals;
+
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('vLoad').classList.add('on');
+  document.getElementById('tbTitle').textContent='Analyzing...';
+  document.getElementById('tbSub').textContent='AI agent is processing your data';
+  animLS();
+
+  const fd=new FormData();
+  fd.append('image',img);
+  flds.forEach(f=>fd.append(f,vals[f]));
+
+  try{
+    const res=await fetch(API,{method:'POST',body:fd});
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err.message||'Server error: '+res.status);
+    }
+    const data=await res.json();
+    if(data.status!=='success')throw new Error(data.message||'Error');
+    savedTxt=data.result;
+
+    const raw=data.result;
+    const sec=parseSec(raw);
+
+    // ✅ Agent ke emoji format se seedha extract
+    const soilLine=raw.match(/🌱\s*Soil Type\s*[:\-–—]+\s*([^\n—\-–]+?)\s*[—\-–]+\s*Confidence\s*[:\-–—]*\s*([\d.]+%)/i);
+    const cropLine=raw.match(/🌾\s*Recommended Crop\s*[:\-–—]+\s*([^\n—\-–]+?)\s*[—\-–]+\s*Confidence\s*[:\-–—]*\s*([\d.]+%)/i);
+
+    const soilName=soilLine?cap(soilLine[1].trim()):'Unknown Soil';
+    const cropName=cropLine?cap(cropLine[1].trim()):'Unknown Crop';
+    const soilConf=soilLine?soilLine[2]:'—';
+    const cropConf=cropLine?cropLine[2]:'—';
+
+    document.getElementById('soilName').textContent=soilName;
+    document.getElementById('cropName').textContent=cropName;
+    document.getElementById('soilConf').textContent='Confidence: '+soilConf;
+    document.getElementById('cropConf').textContent='Confidence: '+cropConf;
+
+    document.getElementById('tx-soil').innerHTML=sec.soil?toP(sec.soil):toP(raw);
+    document.getElementById('tx-crop').innerHTML=sec.crop?toP(sec.crop):toP(raw);
+    document.getElementById('tx-alt').innerHTML=sec.alt?toAlt(sec.alt):toP(raw);
+    document.getElementById('tx-adv').innerHTML=sec.adv?toAdv(sec.adv):toP(raw);
+
+    document.getElementById('prows').innerHTML=buildProws(vals);
+    document.getElementById('ss-s').textContent=soilConf;
+    document.getElementById('ss-c').textContent=cropConf;
+    document.getElementById('ss-r').textContent='AGRI-'+Date.now().toString().slice(-8);
+    document.getElementById('ss-d').textContent=new Date().toLocaleString();
+
+    hasResult=true;
+    showResult();
+    setNav('dash');
+
+  }catch(e){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+    document.getElementById('vInput').classList.add('on');
+    document.getElementById('tbTitle').textContent='Dashboard';
+    document.getElementById('tbSub').textContent='Upload soil image & enter field parameters';
+    eb.classList.add('on');
+    document.getElementById('etxt').textContent='Error: '+e.message;
+  }
+}
+
+// ✅ Organic hata diya reset se bhi
+function resetAll(){
+  hasResult=false;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('vInput').classList.add('on');
+  document.getElementById('imgI').value='';
+  document.getElementById('prev').style.display='none';
+  document.getElementById('uph').style.display='block';
+  ['N','P','K','temperature','humidity','ph','rainfall'].forEach(f=>{
+    const el=document.getElementById(f);if(el)el.value='';
+  });
+  document.getElementById('ebar').classList.remove('on');
+  document.getElementById('rInput').style.display='block';
+  document.getElementById('rResult').style.display='none';
+  document.getElementById('dlBtn').style.display='none';
+  document.getElementById('tbCheck').style.display='none';
+  document.getElementById('tbTitle').textContent='Dashboard';
+  document.getElementById('tbSub').textContent='Upload soil image & enter field parameters';
+  setNav('dash');
+  ['ls1','ls2','ls3','ls4'].forEach(id=>document.getElementById(id).className='ls');
+}
+
+function dlReport(){
+  const b=new Blob([savedTxt],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);
+  a.download='AgriSmart_Report_'+Date.now()+'.txt';
+  a.click();
+}
+
+function saveSettings(){
+  const v=document.getElementById('apiEndpoint').value.trim();
+  if(v){API=v;alert('Settings saved!');}
+}
+</script>
+</body>
+</html>
